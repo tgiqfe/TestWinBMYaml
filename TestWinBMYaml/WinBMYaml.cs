@@ -65,7 +65,7 @@ namespace TestWinBMYaml
         private string TrimComment(string content)
         {
             Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
-            
+
             var sb = new StringBuilder();
             using (var sr = new StringReader(content))
             {
@@ -87,6 +87,83 @@ namespace TestWinBMYaml
             return sb.ToString();
         }
 
+        private int GetIndentDepth(string text)
+        {
+            Regex indent_space = new Regex(@"(?<=^\s+)[^\s].*");
 
+            string spaces = indent_space.Replace(text, "");
+            return spaces.Length;
+        }
+
+
+        /// <summary>
+        /// Kindの値を読み込み
+        /// </summary>
+        private void ReadKind()
+        {
+            using (var sr = new StringReader(Content))
+            {
+                string readLine = "";
+                while ((readLine = sr.ReadLine()) != null)
+                {
+                    if (readLine.StartsWith("kind:"))
+                    {
+                        this.Kind = readLine.Substring(readLine.IndexOf("#") + 1).Trim();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Metadata部を読み込み
+        /// </summary>
+        private void ReadMetadata()
+        {
+            using (var sr = new StringReader(Content))
+            {
+                string readLine = "";
+                while ((readLine = sr.ReadLine()) != null)
+                {
+                    if (readLine.StartsWith("metadata:"))
+                    {
+                        int indent = 0;
+                        while ((readLine = sr.ReadLine()) != null)
+                        {
+                            int nowIndent = GetIndentDepth(readLine);
+                            if (indent > nowIndent)
+                            {
+                                break;
+                            }
+                            indent = nowIndent;
+
+                            string key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                            string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                            switch (key)
+                            {
+                                case "name":
+                                    this.MetadataName = val;
+                                    break;
+                                case "description":
+                                    this.MetadataDescription = val;
+                                    break;
+                                case "skip":
+                                    this.MetadataSkip = bool.TryParse(val, out bool tempSkip) ? tempSkip : null;
+                                    break;
+                                case "step":
+                                    this.MetadataStep = bool.TryParse(val, out bool tempStep) ? tempStep : null;
+                                    break;
+                                case "priority":
+                                    this.MetadataPriority = int.TryParse(val, out int tempPriority) ? tempPriority : null;
+                                    break;
+                                default:
+                                    //  ここで不正パラメータであることを表示する処理
+                                    break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
