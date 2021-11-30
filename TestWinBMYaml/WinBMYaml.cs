@@ -95,7 +95,6 @@ namespace TestWinBMYaml
             return spaces.Length;
         }
 
-
         /// <summary>
         /// Kindの値を読み込み
         /// </summary>
@@ -124,40 +123,95 @@ namespace TestWinBMYaml
                 string readLine = "";
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    if (readLine.StartsWith("metadata:"))
+                    if (readLine == "metadata:")
                     {
                         int indent = 0;
                         while ((readLine = sr.ReadLine()) != null)
                         {
                             int nowIndent = GetIndentDepth(readLine);
-                            if (indent > nowIndent)
+                            if (nowIndent < indent)
                             {
                                 break;
                             }
                             indent = nowIndent;
 
-                            string key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                            string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                            switch (key)
+                            if (readLine.Contains(":"))
                             {
-                                case "name":
-                                    this.MetadataName = val;
-                                    break;
-                                case "description":
-                                    this.MetadataDescription = val;
-                                    break;
-                                case "skip":
-                                    this.MetadataSkip = bool.TryParse(val, out bool tempSkip) ? tempSkip : null;
-                                    break;
-                                case "step":
-                                    this.MetadataStep = bool.TryParse(val, out bool tempStep) ? tempStep : null;
-                                    break;
-                                case "priority":
-                                    this.MetadataPriority = int.TryParse(val, out int tempPriority) ? tempPriority : null;
-                                    break;
-                                default:
-                                    //  ここで不正パラメータであることを表示する処理
-                                    break;
+                                string key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                                string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                                switch (key)
+                                {
+                                    case "name":
+                                        this.MetadataName = val;
+                                        break;
+                                    case "description":
+                                        this.MetadataDescription = val;
+                                        break;
+                                    case "skip":
+                                        this.MetadataSkip = bool.TryParse(val, out bool tempSkip) ? tempSkip : null;
+                                        break;
+                                    case "step":
+                                        this.MetadataStep = bool.TryParse(val, out bool tempStep) ? tempStep : null;
+                                        break;
+                                    case "priority":
+                                        this.MetadataPriority = int.TryParse(val, out int tempPriority) ? tempPriority : null;
+                                        break;
+                                    default:
+                                        //  ここで不正パラメータであることを表示する処理
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void ReadConfig()
+        {
+            using (var sr = new StringReader(Content))
+            {
+                string readLine = "";
+                while((readLine = sr.ReadLine()) != null)
+                {
+                    if (readLine == "job:")
+                    {
+                        int indent = 0;
+                        while ((readLine = sr.ReadLine()) != null)
+                        {
+                            int nowIndent = GetIndentDepth(readLine);
+                            if (nowIndent < indent)
+                            {
+                                break;
+                            }
+                            indent = nowIndent;
+
+                            if (readLine.Contains(":"))
+                            {
+                                string key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                                string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                                switch (key)
+                                {
+                                    case "name":
+                                        this.ConfigName = val;
+                                        break;
+                                    case "description":
+                                        this.ConfigDescription = val;
+                                        break;
+                                    case "skip":
+                                        this.ConfigSkip = bool.TryParse(val, out bool tempSkip) ? tempSkip : null;
+                                        break;
+                                    case "task":
+                                        this.ConfigTask = val;
+                                        break;
+                                    case "param":
+                                        this.ConfigParam = null;
+                                        break;
+                                    default:
+                                        //  ここで不正パラメータであることを表示する処理
+                                        break;
+                                }
                             }
                         }
                         break;
