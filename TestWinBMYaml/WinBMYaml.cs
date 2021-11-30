@@ -125,15 +125,17 @@ namespace TestWinBMYaml
                 {
                     if (readLine == "metadata:")
                     {
-                        int indent = 0;
+                        List<string> list = new List<string>();
                         while ((readLine = sr.ReadLine()) != null)
                         {
-                            int nowIndent = GetIndentDepth(readLine);
-                            if (nowIndent < indent)
+                            if(GetIndentDepth(readLine) == 0)
                             {
                                 break;
                             }
-                            indent = nowIndent;
+                            
+
+
+
 
                             if (readLine.Contains(":"))
                             {
@@ -173,7 +175,7 @@ namespace TestWinBMYaml
             using (var sr = new StringReader(Content))
             {
                 string readLine = "";
-                while((readLine = sr.ReadLine()) != null)
+                while ((readLine = sr.ReadLine()) != null)
                 {
                     if (readLine == "job:")
                     {
@@ -187,15 +189,25 @@ namespace TestWinBMYaml
                             }
                             indent = nowIndent;
 
-                            if (readLine.Contains(":"))
+                            while (true)
                             {
-                                string key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                                string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                                string key = "";
+                                string val = "";
+                                if (readLine.Contains(":"))
+                                {
+                                    key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                                    val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                                }
+                                else
+                                {
+                                    val = readLine.Trim();
+                                }
+
                                 switch (key)
                                 {
                                     case "name":
                                         this.ConfigName = val;
-                                        break;
+                                        continue;
                                     case "description":
                                         this.ConfigDescription = val;
                                         break;
@@ -212,12 +224,14 @@ namespace TestWinBMYaml
                                         //  ここで不正パラメータであることを表示する処理
                                         break;
                                 }
+                                break;
                             }
                         }
-                        break;
                     }
+                    break;
                 }
             }
         }
     }
 }
+
