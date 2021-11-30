@@ -1,14 +1,20 @@
 ﻿using WinBM.Recipe;
+using TestWinBMYaml;
+
 
 string targetPath = "Test.yml";
 
-List<Page> list = Page.Deserialize(targetPath);
+var list = new List<string>();
+list.Add(targetPath);
+
+TestYaml test = new TestYaml();
+test.CheckFiles(list);
 
 
-foreach (var page in list)
-{
-    Console.WriteLine(page.Serial);
-}
+
+
+
+
 
 
 Console.ReadLine();
