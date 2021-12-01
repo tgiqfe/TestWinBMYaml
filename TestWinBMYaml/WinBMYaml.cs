@@ -95,6 +95,30 @@ namespace TestWinBMYaml
             return spaces.Length;
         }
 
+        private Dictionary<string, string> GetParameters(StringReader sr, int indent)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            string key = "";
+            string readLine = "";
+            while ((readLine = sr.ReadLine()) != null)
+            {
+                if (GetIndentDepth(readLine) < indent)
+                {
+                    break;
+                }
+                if (readLine.Contains(":"))
+                {
+                    key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                    result[key] = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                }
+                else
+                {
+                    result[key] = (Environment.NewLine + readLine.Trim());
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         /// Kindの値を読み込み
         /// </summary>
@@ -108,6 +132,7 @@ namespace TestWinBMYaml
                     if (readLine.StartsWith("kind:"))
                     {
                         this.Kind = readLine.Substring(readLine.IndexOf("#") + 1).Trim();
+                        break;
                     }
                 }
             }
@@ -127,30 +152,13 @@ namespace TestWinBMYaml
                 {
                     if (readLine == "metadata:")
                     {
-                        string key = "";
-                        while ((readLine = sr.ReadLine()) != null)
-                        {
-                            if (GetIndentDepth(readLine) == 0)
-                            {
-                                break;
-                            }
-                            if (readLine.Contains(":"))
-                            {
-                                key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                                string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                                contentLeaves[key] = val;
-                            }
-                            else
-                            {
-                                contentLeaves[key] = Environment.NewLine + readLine.Trim();
-                            }
-                        }
+                        contentLeaves = GetParameters(sr, GetIndentDepth(readLine));
                         break;
                     }
                 }
             }
 
-            foreach(KeyValuePair<string, string> pair in contentLeaves)
+            foreach (KeyValuePair<string, string> pair in contentLeaves)
             {
                 switch (pair.Key)
                 {
@@ -183,28 +191,17 @@ namespace TestWinBMYaml
             using (var sr = new StringReader(Content))
             {
                 string readLine = "";
+                bool inConfig = false;
                 while ((readLine = sr.ReadLine()) != null)
                 {
                     if (readLine == "config:")
                     {
-                        string key = "";
-                        while ((readLine = sr.ReadLine()) != null)
-                        {
-                            if (GetIndentDepth(readLine) == 0)
-                            {
-                                break;
-                            }
-                            if (readLine.Contains(":"))
-                            {
-                                key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                                string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                                contentLeaves[key] = val;
-                            }
-                            else
-                            {
-                                contentLeaves[key] += (Environment.NewLine + readLine.Trim());
-                            }
-                        }
+                        inConfig = true;
+                        continue;
+                    }
+                    if (inConfig && readLine.Trim() == "spec:")
+                    {
+                        contentLeaves = GetParameters(sr, GetIndentDepth(readLine));
                         break;
                     }
                 }
