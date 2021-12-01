@@ -202,7 +202,7 @@ namespace TestWinBMYaml
                             }
                             else
                             {
-                                contentLeaves[key] = Environment.NewLine + readLine.Trim();
+                                contentLeaves[key] += (Environment.NewLine + readLine.Trim());
                             }
                         }
                         break;
@@ -226,6 +226,7 @@ namespace TestWinBMYaml
                     case "task":
                         this.ConfigTask = pair.Value;
                         break;
+
                     default:
                         //  ここで不正パラメータであることを表示する処理
                         break;
