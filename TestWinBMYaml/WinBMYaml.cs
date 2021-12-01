@@ -118,6 +118,8 @@ namespace TestWinBMYaml
         /// </summary>
         private void ReadMetadata()
         {
+            Dictionary<string, string> contentLeaves = new Dictionary<string, string>();
+
             using (var sr = new StringReader(Content))
             {
                 string readLine = "";
@@ -125,110 +127,108 @@ namespace TestWinBMYaml
                 {
                     if (readLine == "metadata:")
                     {
-                        List<string> list = new List<string>();
+                        string key = "";
                         while ((readLine = sr.ReadLine()) != null)
                         {
-                            if(GetIndentDepth(readLine) == 0)
+                            if (GetIndentDepth(readLine) == 0)
                             {
                                 break;
                             }
-                            
-
-
-
-
                             if (readLine.Contains(":"))
                             {
-                                string key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                                key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
                                 string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                                switch (key)
-                                {
-                                    case "name":
-                                        this.MetadataName = val;
-                                        break;
-                                    case "description":
-                                        this.MetadataDescription = val;
-                                        break;
-                                    case "skip":
-                                        this.MetadataSkip = bool.TryParse(val, out bool tempSkip) ? tempSkip : null;
-                                        break;
-                                    case "step":
-                                        this.MetadataStep = bool.TryParse(val, out bool tempStep) ? tempStep : null;
-                                        break;
-                                    case "priority":
-                                        this.MetadataPriority = int.TryParse(val, out int tempPriority) ? tempPriority : null;
-                                        break;
-                                    default:
-                                        //  ここで不正パラメータであることを表示する処理
-                                        break;
-                                }
+                                contentLeaves[key] = val;
+                            }
+                            else
+                            {
+                                contentLeaves[key] = Environment.NewLine + readLine.Trim();
                             }
                         }
                         break;
                     }
                 }
             }
+
+            foreach(KeyValuePair<string, string> pair in contentLeaves)
+            {
+                switch (pair.Key)
+                {
+                    case "name":
+                        this.MetadataName = pair.Value;
+                        break;
+                    case "description":
+                        this.MetadataDescription = pair.Value;
+                        break;
+                    case "skip":
+                        this.MetadataSkip = bool.TryParse(pair.Value, out bool tempSkip) ? tempSkip : null;
+                        break;
+                    case "step":
+                        this.MetadataStep = bool.TryParse(pair.Value, out bool tempStep) ? tempStep : null;
+                        break;
+                    case "priority":
+                        this.MetadataPriority = int.TryParse(pair.Value, out int tempPriority) ? tempPriority : null;
+                        break;
+                    default:
+                        //  ここで不正パラメータであることを表示する処理
+                        break;
+                }
+            }
         }
 
         private void ReadConfig()
         {
+            Dictionary<string, string> contentLeaves = new Dictionary<string, string>();
+
             using (var sr = new StringReader(Content))
             {
                 string readLine = "";
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    if (readLine == "job:")
+                    if (readLine == "config:")
                     {
-                        int indent = 0;
+                        string key = "";
                         while ((readLine = sr.ReadLine()) != null)
                         {
-                            int nowIndent = GetIndentDepth(readLine);
-                            if (nowIndent < indent)
+                            if (GetIndentDepth(readLine) == 0)
                             {
                                 break;
                             }
-                            indent = nowIndent;
-
-                            while (true)
+                            if (readLine.Contains(":"))
                             {
-                                string key = "";
-                                string val = "";
-                                if (readLine.Contains(":"))
-                                {
-                                    key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                                    val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                                }
-                                else
-                                {
-                                    val = readLine.Trim();
-                                }
-
-                                switch (key)
-                                {
-                                    case "name":
-                                        this.ConfigName = val;
-                                        continue;
-                                    case "description":
-                                        this.ConfigDescription = val;
-                                        break;
-                                    case "skip":
-                                        this.ConfigSkip = bool.TryParse(val, out bool tempSkip) ? tempSkip : null;
-                                        break;
-                                    case "task":
-                                        this.ConfigTask = val;
-                                        break;
-                                    case "param":
-                                        this.ConfigParam = null;
-                                        break;
-                                    default:
-                                        //  ここで不正パラメータであることを表示する処理
-                                        break;
-                                }
-                                break;
+                                key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                                string val = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                                contentLeaves[key] = val;
+                            }
+                            else
+                            {
+                                contentLeaves[key] = Environment.NewLine + readLine.Trim();
                             }
                         }
+                        break;
                     }
-                    break;
+                }
+            }
+
+            foreach (KeyValuePair<string, string> pair in contentLeaves)
+            {
+                switch (pair.Key)
+                {
+                    case "name":
+                        this.ConfigName = pair.Value;
+                        break;
+                    case "description":
+                        this.ConfigDescription = pair.Value;
+                        break;
+                    case "skip":
+                        this.ConfigSkip = bool.TryParse(pair.Value, out bool tempSkip) ? tempSkip : null;
+                        break;
+                    case "task":
+                        this.ConfigTask = pair.Value;
+                        break;
+                    default:
+                        //  ここで不正パラメータであることを表示する処理
+                        break;
                 }
             }
         }
