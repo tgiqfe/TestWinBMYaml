@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TestWinBMYaml
 {
-    internal class WinBMYamlRequire 
+    internal class YamlRequire 
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -17,7 +17,7 @@ namespace TestWinBMYaml
         public bool? Progress { get; set; }
         public List<string> IllegalList { get; set; }
 
-        public static List<WinBMYamlRequire> Create(string content)
+        public static List<YamlRequire> Create(string content)
         {
             List<Dictionary<string, string>> paramsetList = new List<Dictionary<string, string>>();
 
@@ -40,10 +40,10 @@ namespace TestWinBMYaml
                 }
             }
 
-            List<WinBMYamlRequire> list = new List<WinBMYamlRequire>();
+            List<YamlRequire> list = new List<YamlRequire>();
             foreach (Dictionary<string, string> paramset in paramsetList)
             {
-                var spec = new WinBMYamlRequire();
+                var spec = new YamlRequire();
                 foreach (KeyValuePair<string, string> pair in paramset)
                 {
                     switch (pair.Key)

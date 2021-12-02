@@ -15,12 +15,12 @@ namespace TestWinBMYaml
         public string Content { get; set; }
         public bool Enabled { get; set; }
 
-        public string Kind { get; set; }
+        public YamlKind Kind { get; set; }
         public YamlMetadata Metadata { get; set; }
-        public YamlConfig[] Config { get; set; }
-        public YamlOutput[] Output { get; set; }
-        public YamlRequire[] Require { get; set; }
-        public YamlRequire[] Work { get; set; }
+        public List<YamlConfig> Config { get; set; }
+        public List<YamlOutput> Output { get; set; }
+        public List<YamlRequire> Require { get; set; }
+        public List<YamlWork> Work { get; set; }
 
         public WinBMYaml() { }
         public WinBMYaml(string filePath, int pageIndex, string content)
@@ -29,63 +29,36 @@ namespace TestWinBMYaml
             this.PageIndex = pageIndex;
             if (content.Trim() != "")
             {
+                Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
+                var sb = new StringBuilder();
+                using (var sr = new StringReader(content))
+                {
+                    string readLine = "";
+                    while ((readLine = sr.ReadLine()) != null)
+                    {
+                        if (readLine.Contains("#"))
+                        {
+                            readLine = comment_hash.Replace(readLine, "");
+                        }
+                        if (readLine.Trim() == "")
+                        {
+                            continue;
+                        }
+                        sb.AppendLine(readLine);
+                    }
+                }
+                this.Content = sb.ToString();
+
+                this.Kind = YamlKind.Create(this.Content);
+                this.Metadata = YamlMetadata.Create(this.Content);
+                this.Config = YamlConfig.Create(this.Content);
+                this.Output = YamlOutput.Create(this.Content);
+                this.Require = YamlRequire.Create(this.Content);
+                this.Work = YamlWork.Create(this.Content);
+
                 this.Enabled = true;
-                this.Content = TrimComment(content);
             }
         }
-
-        /// <summary>
-        /// コメント行、行途中のコメント文字以下、空行を削除
-        /// </summary>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        private string TrimComment(string content)
-        {
-            Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
-
-            var sb = new StringBuilder();
-            using (var sr = new StringReader(content))
-            {
-                string readLine = "";
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    if (readLine.Contains("#"))
-                    {
-                        readLine = comment_hash.Replace(readLine, "");
-                    }
-                    if (readLine.Trim() == "")
-                    {
-                        continue;
-                    }
-                    sb.AppendLine(readLine);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        #region Read from Content
-
-        /// <summary>
-        /// Kindの値を読み込み
-        /// </summary>
-        private void ReadKind()
-        {
-            using (var sr = new StringReader(Content))
-            {
-                string readLine = "";
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    if (readLine.StartsWith("kind:"))
-                    {
-                        this.Kind = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                        break;
-                    }
-                }
-            }
-        }
-
-        #endregion
     }
 }
 

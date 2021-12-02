@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TestWinBMYaml
 {
-    internal class WinBmYamlMetadata
+    internal class YamlMetadata
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -15,9 +15,9 @@ namespace TestWinBMYaml
         public int? Priority { get; set; }
         public List<string> IllegalList { get; set; }
 
-        public WinBmYamlMetadata() { }
+        public YamlMetadata() { }
 
-        public static WinBmYamlMetadata Create(string content)
+        public static YamlMetadata Create(string content)
         {
             Dictionary<string, string> paramset = null;
 
@@ -34,7 +34,7 @@ namespace TestWinBMYaml
                 }
             }
 
-            var spec = new WinBmYamlMetadata();
+            var spec = new YamlMetadata();
             foreach (KeyValuePair<string, string> pair in paramset)
             {
                 switch (pair.Key)

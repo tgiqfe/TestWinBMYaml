@@ -29,8 +29,10 @@ namespace TestWinBMYaml
                 return;
             }
 
+
+
             //  WinBMYamlインスタンスを取得
-            List<WinBMYaml> winBMYamlList = SplitPage(fileList);
+            WinBMYamlCollection collection = new WinBMYamlCollection(fileList);
         }
 
         /// <summary>
@@ -55,35 +57,6 @@ namespace TestWinBMYaml
             catch { }
 
             return null;
-        }
-
-        /// <summary>
-        /// ファイルから「---」単位でのPageTextを取得
-        /// </summary>
-        /// <param name="fileList"></param>
-        /// <returns></returns>
-        public List<WinBMYaml> SplitPage(List<string> fileList)
-        {
-            Regex ymlDelimiter = new Regex(@"---\r?\n");
-            Func<string, string[]> splitPageText = (string filePath) =>
-            {
-                using (var sr = new StreamReader(filePath, Encoding.UTF8))
-                {
-                    return ymlDelimiter.Split(sr.ReadToEnd());
-                }
-            };
-
-            var list = new List<WinBMYaml>();
-
-            foreach (string filePath in fileList)
-            {
-                int index = 0;
-                splitPageText(filePath).ToList().ForEach(x =>
-                {
-                    list.Add(new WinBMYaml(filePath, ++index, x));
-                });
-            }
-            return list;
         }
     }
 }
