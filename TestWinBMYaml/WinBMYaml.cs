@@ -15,33 +15,43 @@ namespace TestWinBMYaml
         public string Content { get; set; }
         public bool Enabled { get; set; }
 
+        //  Kind
         public string Kind { get; set; }
 
+        //  Metadata
         public string MetadataName { get; set; }
         public string MetadataDescription { get; set; }
         public bool? MetadataSkip { get; set; }
         public bool? MetadataStep { get; set; }
         public int? MetadataPriority { get; set; }
+        public string[] IllegalMetadata { get; set; }
 
+        //  Config
         public string ConfigName { get; set; }
         public string ConfigDescription { get; set; }
         public bool? ConfigSkip { get; set; }
         public string ConfigTask { get; set; }
         public Dictionary<string, string> ConfigParam { get; set; }
+        public string[] IllegalConfig { get; set; }
 
+        //  Output
         public string OutputName { get; set; }
         public string OutputDescription { get; set; }
         public bool? OutputSkip { get; set; }
         public string OutputTask { get; set; }
         public Dictionary<string, string> OutputParam { get; set; }
+        public string[] IllegalOutput { get; set; }
 
+        //  Job - Require
         public string RequireName { get; set; }
         public string RequireDescription { get; set; }
         public bool? RequireSkip { get; set; }
         public string RequireTask { get; set; }
         public Dictionary<string, string> RequireParam { get; set; }
         public string RequireFailed { get; set; }
+        public string[] IllegalRequire { get; set; }
 
+        //  Job - Work
         public string WorkName { get; set; }
         public string WorkDescription { get; set; }
         public bool? WorkSkip { get; set; }
@@ -49,6 +59,7 @@ namespace TestWinBMYaml
         public Dictionary<string, string> WorkParam { get; set; }
         public string WorkFailed { get; set; }
         public bool? WorkProgress { get; set; }
+        public string[] IllegalWork { get; set; }
 
         public WinBMYaml() { }
         public WinBMYaml(string filePath, int pageIndex, string content)
@@ -92,6 +103,11 @@ namespace TestWinBMYaml
             return sb.ToString();
         }
 
+        /// <summary>
+        /// 行のインデントの深さを取得
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private int GetIndentDepth(string text)
         {
             Regex indent_space = new Regex(@"(?<=^\s+)[^\s].*");
@@ -100,51 +116,58 @@ namespace TestWinBMYaml
             return spaces.Length;
         }
 
-        private Dictionary<string, string> GetParameters(StringReader sr)
+        private List<Dictionary<string, string>> GetParameters(StringReader sr)
         {
-            Dictionary<string, string> result = new Dictionary<string, string>();
+            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+
             string key = "";
             string readLine = "";
-
             int? indent = null;
+
+            Dictionary<string, string> parameter = null;
 
             while ((readLine = sr.ReadLine()) != null)
             {
+                if(readLine.Trim() == "")
+                {
+                    continue;
+                }
+
+                if (parameter == null || readLine.StartsWith("- "))
+                {
+                    readLine = Regex.Replace(readLine, @"(?<=\s*)- ", "  ");
+                    parameter = new Dictionary<string, string>();
+                    list.Add(parameter);
+                }
+
                 indent ??= GetIndentDepth(readLine);
-
                 int nowIndent = GetIndentDepth(readLine);
-                if(nowIndent < indent)
+                if (nowIndent < indent)
                 {
                     break;
                 }
-
-
-
-
-
-
-
-                if (nowIndent <= indent)
+                else if (nowIndent == indent)
                 {
-                    break;
+                    if (readLine.Contains(":"))
+                    {
+                        key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                        parameter[key] = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                    }
+                    else
+                    {
+                        parameter[key] += (Environment.NewLine + readLine.Trim());
+                    }
                 }
-                
-
-
-
-
-                if (readLine.Contains(":"))
+                else if (nowIndent > indent)
                 {
-                    key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                    result[key] = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                }
-                else
-                {
-                    result[key] = (Environment.NewLine + readLine.Trim());
+                    parameter[key] += (Environment.NewLine + readLine.Trim());
                 }
             }
-            return result;
+
+            return list;
         }
+
+        #region Read from Content
 
         /// <summary>
         /// Kindの値を読み込み
@@ -158,7 +181,7 @@ namespace TestWinBMYaml
                 {
                     if (readLine.StartsWith("kind:"))
                     {
-                        this.Kind = readLine.Substring(readLine.IndexOf("#") + 1).Trim();
+                        this.Kind = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
                         break;
                     }
                 }
@@ -170,7 +193,7 @@ namespace TestWinBMYaml
         /// </summary>
         private void ReadMetadata()
         {
-            Dictionary<string, string> contentLeaves = new Dictionary<string, string>();
+            List<Dictionary<string, string>> paramList = new List<Dictionary<string, string>>();
 
             using (var sr = new StringReader(Content))
             {
@@ -179,13 +202,13 @@ namespace TestWinBMYaml
                 {
                     if (readLine == "metadata:")
                     {
-                        contentLeaves = GetParameters(sr);
+                        paramList = GetParameters(sr);
                         break;
                     }
                 }
             }
 
-            foreach (KeyValuePair<string, string> pair in contentLeaves)
+            foreach (KeyValuePair<string, string> pair in paramList[0])
             {
                 switch (pair.Key)
                 {
@@ -213,7 +236,7 @@ namespace TestWinBMYaml
 
         private void ReadConfig()
         {
-            Dictionary<string, string> contentLeaves = new Dictionary<string, string>();
+            List<Dictionary<string, string>> paramList = new List<Dictionary<string, string>>();
 
             using (var sr = new StringReader(Content))
             {
@@ -228,13 +251,13 @@ namespace TestWinBMYaml
                     }
                     if (inConfig && readLine.Trim() == "spec:")
                     {
-                        contentLeaves = GetParameters(sr);
+                        paramList = GetParameters(sr);
                         break;
                     }
                 }
             }
 
-            foreach (KeyValuePair<string, string> pair in contentLeaves)
+            foreach (KeyValuePair<string, string> pair in paramList[0])
             {
                 switch (pair.Key)
                 {
@@ -250,13 +273,20 @@ namespace TestWinBMYaml
                     case "task":
                         this.ConfigTask = pair.Value;
                         break;
-
+                    case "param":
+                        using (var sr = new StringReader(pair.Value))
+                        {
+                            this.ConfigParam = GetParameters(sr)[0];
+                        }
+                        break;
                     default:
                         //  ここで不正パラメータであることを表示する処理
                         break;
                 }
             }
         }
+
+        #endregion
     }
 }
 
