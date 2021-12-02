@@ -15,51 +15,12 @@ namespace TestWinBMYaml
         public string Content { get; set; }
         public bool Enabled { get; set; }
 
-        //  Kind
         public string Kind { get; set; }
-
-        //  Metadata
-        public string MetadataName { get; set; }
-        public string MetadataDescription { get; set; }
-        public bool? MetadataSkip { get; set; }
-        public bool? MetadataStep { get; set; }
-        public int? MetadataPriority { get; set; }
-        public string[] IllegalMetadata { get; set; }
-
-        //  Config
-        public string ConfigName { get; set; }
-        public string ConfigDescription { get; set; }
-        public bool? ConfigSkip { get; set; }
-        public string ConfigTask { get; set; }
-        public Dictionary<string, string> ConfigParam { get; set; }
-        public string[] IllegalConfig { get; set; }
-
-        //  Output
-        public string OutputName { get; set; }
-        public string OutputDescription { get; set; }
-        public bool? OutputSkip { get; set; }
-        public string OutputTask { get; set; }
-        public Dictionary<string, string> OutputParam { get; set; }
-        public string[] IllegalOutput { get; set; }
-
-        //  Job - Require
-        public string RequireName { get; set; }
-        public string RequireDescription { get; set; }
-        public bool? RequireSkip { get; set; }
-        public string RequireTask { get; set; }
-        public Dictionary<string, string> RequireParam { get; set; }
-        public string RequireFailed { get; set; }
-        public string[] IllegalRequire { get; set; }
-
-        //  Job - Work
-        public string WorkName { get; set; }
-        public string WorkDescription { get; set; }
-        public bool? WorkSkip { get; set; }
-        public string WorkTask { get; set; }
-        public Dictionary<string, string> WorkParam { get; set; }
-        public string WorkFailed { get; set; }
-        public bool? WorkProgress { get; set; }
-        public string[] IllegalWork { get; set; }
+        public WinBmYamlMetadata Metadata { get; set; }
+        public WinBMYamlConfig[] Config { get; set; }
+        public WinBMYamlOutput[] Output { get; set; }
+        public WinBMYamlRequire[] Require { get; set; }
+        public WinBMYamlJob[] Work { get; set; }
 
         public WinBMYaml() { }
         public WinBMYaml(string filePath, int pageIndex, string content)
@@ -103,70 +64,6 @@ namespace TestWinBMYaml
             return sb.ToString();
         }
 
-        /// <summary>
-        /// 行のインデントの深さを取得
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        private int GetIndentDepth(string text)
-        {
-            Regex indent_space = new Regex(@"(?<=^\s+)[^\s].*");
-
-            string spaces = indent_space.Replace(text, "");
-            return spaces.Length;
-        }
-
-        private List<Dictionary<string, string>> GetParameters(StringReader sr)
-        {
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
-
-            string key = "";
-            string readLine = "";
-            int? indent = null;
-
-            Dictionary<string, string> parameter = null;
-
-            while ((readLine = sr.ReadLine()) != null)
-            {
-                if(readLine.Trim() == "")
-                {
-                    continue;
-                }
-
-                if (parameter == null || readLine.StartsWith("- "))
-                {
-                    readLine = Regex.Replace(readLine, @"(?<=\s*)- ", "  ");
-                    parameter = new Dictionary<string, string>();
-                    list.Add(parameter);
-                }
-
-                indent ??= GetIndentDepth(readLine);
-                int nowIndent = GetIndentDepth(readLine);
-                if (nowIndent < indent)
-                {
-                    break;
-                }
-                else if (nowIndent == indent)
-                {
-                    if (readLine.Contains(":"))
-                    {
-                        key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                        parameter[key] = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
-                    }
-                    else
-                    {
-                        parameter[key] += (Environment.NewLine + readLine.Trim());
-                    }
-                }
-                else if (nowIndent > indent)
-                {
-                    parameter[key] += (Environment.NewLine + readLine.Trim());
-                }
-            }
-
-            return list;
-        }
-
         #region Read from Content
 
         /// <summary>
@@ -184,104 +81,6 @@ namespace TestWinBMYaml
                         this.Kind = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
                         break;
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Metadata部を読み込み
-        /// </summary>
-        private void ReadMetadata()
-        {
-            List<Dictionary<string, string>> paramList = new List<Dictionary<string, string>>();
-
-            using (var sr = new StringReader(Content))
-            {
-                string readLine = "";
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    if (readLine == "metadata:")
-                    {
-                        paramList = GetParameters(sr);
-                        break;
-                    }
-                }
-            }
-
-            foreach (KeyValuePair<string, string> pair in paramList[0])
-            {
-                switch (pair.Key)
-                {
-                    case "name":
-                        this.MetadataName = pair.Value;
-                        break;
-                    case "description":
-                        this.MetadataDescription = pair.Value;
-                        break;
-                    case "skip":
-                        this.MetadataSkip = bool.TryParse(pair.Value, out bool tempSkip) ? tempSkip : null;
-                        break;
-                    case "step":
-                        this.MetadataStep = bool.TryParse(pair.Value, out bool tempStep) ? tempStep : null;
-                        break;
-                    case "priority":
-                        this.MetadataPriority = int.TryParse(pair.Value, out int tempPriority) ? tempPriority : null;
-                        break;
-                    default:
-                        //  ここで不正パラメータであることを表示する処理
-                        break;
-                }
-            }
-        }
-
-        private void ReadConfig()
-        {
-            List<Dictionary<string, string>> paramList = new List<Dictionary<string, string>>();
-
-            using (var sr = new StringReader(Content))
-            {
-                string readLine = "";
-                bool inConfig = false;
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    if (readLine == "config:")
-                    {
-                        inConfig = true;
-                        continue;
-                    }
-                    if (inConfig && readLine.Trim() == "spec:")
-                    {
-                        paramList = GetParameters(sr);
-                        break;
-                    }
-                }
-            }
-
-            foreach (KeyValuePair<string, string> pair in paramList[0])
-            {
-                switch (pair.Key)
-                {
-                    case "name":
-                        this.ConfigName = pair.Value;
-                        break;
-                    case "description":
-                        this.ConfigDescription = pair.Value;
-                        break;
-                    case "skip":
-                        this.ConfigSkip = bool.TryParse(pair.Value, out bool tempSkip) ? tempSkip : null;
-                        break;
-                    case "task":
-                        this.ConfigTask = pair.Value;
-                        break;
-                    case "param":
-                        using (var sr = new StringReader(pair.Value))
-                        {
-                            this.ConfigParam = GetParameters(sr)[0];
-                        }
-                        break;
-                    default:
-                        //  ここで不正パラメータであることを表示する処理
-                        break;
                 }
             }
         }
