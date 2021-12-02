@@ -62,6 +62,11 @@ namespace TestWinBMYaml
             }
         }
 
+        /// <summary>
+        /// コメント行、行途中のコメント文字以下、空行を削除
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
         private string TrimComment(string content)
         {
             Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
@@ -95,17 +100,39 @@ namespace TestWinBMYaml
             return spaces.Length;
         }
 
-        private Dictionary<string, string> GetParameters(StringReader sr, int indent)
+        private Dictionary<string, string> GetParameters(StringReader sr)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
             string key = "";
             string readLine = "";
+
+            int? indent = null;
+
             while ((readLine = sr.ReadLine()) != null)
             {
-                if (GetIndentDepth(readLine) < indent)
+                indent ??= GetIndentDepth(readLine);
+
+                int nowIndent = GetIndentDepth(readLine);
+                if(nowIndent < indent)
                 {
                     break;
                 }
+
+
+
+
+
+
+
+                if (nowIndent <= indent)
+                {
+                    break;
+                }
+                
+
+
+
+
                 if (readLine.Contains(":"))
                 {
                     key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
@@ -152,7 +179,7 @@ namespace TestWinBMYaml
                 {
                     if (readLine == "metadata:")
                     {
-                        contentLeaves = GetParameters(sr, GetIndentDepth(readLine));
+                        contentLeaves = GetParameters(sr);
                         break;
                     }
                 }
@@ -201,7 +228,7 @@ namespace TestWinBMYaml
                     }
                     if (inConfig && readLine.Trim() == "spec:")
                     {
-                        contentLeaves = GetParameters(sr, GetIndentDepth(readLine));
+                        contentLeaves = GetParameters(sr);
                         break;
                     }
                 }
