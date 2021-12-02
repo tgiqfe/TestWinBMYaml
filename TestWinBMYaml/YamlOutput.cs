@@ -17,7 +17,7 @@ namespace TestWinBMYaml
 
         public static List<WinBMYamlOutput> Create(string content)
         {
-            List<Dictionary<string, string>> specList = new List<Dictionary<string, string>>();
+            List<Dictionary<string, string>> paramsetList = new List<Dictionary<string, string>>();
 
             using (var sr = new StringReader(content))
             {
@@ -32,14 +32,14 @@ namespace TestWinBMYaml
                     }
                     if (inChild && readLine.Trim() == "spec:")
                     {
-                        specList = Functions.GetParameters(sr);
+                        paramsetList = Functions.GetParameters(sr);
                         break;
                     }
                 }
             }
 
             List<WinBMYamlOutput> list = new List<WinBMYamlOutput>();
-            foreach (Dictionary<string, string> paramset in specList)
+            foreach (Dictionary<string, string> paramset in paramsetList)
             {
                 var spec = new WinBMYamlOutput();
                 foreach (KeyValuePair<string, string> pair in paramset)

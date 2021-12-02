@@ -16,11 +16,11 @@ namespace TestWinBMYaml
         public bool Enabled { get; set; }
 
         public string Kind { get; set; }
-        public WinBmYamlMetadata Metadata { get; set; }
-        public WinBMYamlConfig[] Config { get; set; }
-        public WinBMYamlOutput[] Output { get; set; }
-        public WinBMYamlRequire[] Require { get; set; }
-        public WinBMYamlJob[] Work { get; set; }
+        public YamlMetadata Metadata { get; set; }
+        public YamlConfig[] Config { get; set; }
+        public YamlOutput[] Output { get; set; }
+        public YamlRequire[] Require { get; set; }
+        public YamlRequire[] Work { get; set; }
 
         public WinBMYaml() { }
         public WinBMYaml(string filePath, int pageIndex, string content)

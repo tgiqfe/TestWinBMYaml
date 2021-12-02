@@ -6,21 +6,20 @@ using System.Threading.Tasks;
 
 namespace TestWinBMYaml
 {
-    internal class WinBMYamlJob 
+    internal class WinBMYamlConfig
     {
         public string Name { get; set; }
         public string Description { get; set; }
         public bool? Skip { get; set; }
         public string Task { get; set; }
         public Dictionary<string, string> Param { get; set; }
-        public string Failed { get; set; }
-        public bool? Progress { get; set; }
         public List<string> IllegalList { get; set; }
 
-        public static List<WinBMYamlJob> Create(string content)
+        public WinBMYamlConfig() { }
+
+        public static List<WinBMYamlConfig> Create(string content)
         {
-            List<Dictionary<string, string>> requireList = new List<Dictionary<string, string>>();
-            List<Dictionary<string, string>> workList = new List<Dictionary<string, string>>();
+            List<Dictionary<string, string>> paramsetList = new List<Dictionary<string, string>>();
 
             using (var sr = new StringReader(content))
             {
@@ -28,37 +27,23 @@ namespace TestWinBMYaml
                 bool inChild = false;
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    if (readLine == "job:")
+                    if (readLine == "config:")
                     {
                         inChild = true;
                         continue;
                     }
-                    if (inChild && readLine.Trim() == "require:")
+                    if (inChild && readLine.Trim() == "spec:")
                     {
-                        requireList = Functions.GetParameters(sr);
-                        break;
-                    }
-                }
-
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    if (readLine == "job:")
-                    {
-                        inChild = true;
-                        continue;
-                    }
-                    if (inChild && readLine.Trim() == "work:")
-                    {
-                        workList = Functions.GetParameters(sr);
+                        paramsetList = Functions.GetParameters(sr);
                         break;
                     }
                 }
             }
 
-            List<WinBMYamlJob> list = new List<WinBMYamlJob>();
-            foreach (Dictionary<string, string> paramset in workList)
+            List<WinBMYamlConfig> list = new List<WinBMYamlConfig>();
+            foreach (Dictionary<string, string> paramset in paramsetList)
             {
-                var spec = new WinBMYamlJob();
+                var spec = new WinBMYamlConfig();
                 foreach (KeyValuePair<string, string> pair in paramset)
                 {
                     switch (pair.Key)
@@ -76,16 +61,10 @@ namespace TestWinBMYaml
                             spec.Task = pair.Value;
                             break;
                         case "param":
-                            using (var sr = new StringReader(pair.Value))
+                            using(var sr = new StringReader(pair.Value))
                             {
                                 spec.Param = Functions.GetParameters(sr)[0];
                             }
-                            break;
-                        case "failed":
-                            spec.Failed = pair.Value;
-                            break;
-                        case "progress":
-                            spec.Progress = bool.TryParse(pair.Value, out bool progress) ? progress : null;
                             break;
                         default:
                             spec.IllegalList ??= new List<string>();
