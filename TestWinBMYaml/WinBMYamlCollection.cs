@@ -19,9 +19,11 @@ namespace TestWinBMYaml
                 int index = 0;
                 using (var sr = new StreamReader(filePath, Encoding.UTF8))
                 {
-                    string[] pageText = ymlDelimiter.Split(sr.ReadToEnd());
-                    pageText.ToList().ForEach(x =>
-                        this.Add(new WinBMYaml(filePath, ++index, x)));
+                    string[] pageTexts = ymlDelimiter.Split(sr.ReadToEnd());
+                    pageTexts.
+                        Where(x => x.Trim() != "").
+                        ToList().
+                        ForEach(x => this.Add(new WinBMYaml(filePath, ++index, x)));
                 }
             }
         }

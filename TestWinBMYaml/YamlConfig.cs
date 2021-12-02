@@ -76,5 +76,10 @@ namespace TestWinBMYaml
 
             return list;
         }
+
+        public string SearchIllegal()
+        {
+            return null;
+        }
     }
 }

@@ -15,6 +15,11 @@ namespace TestWinBMYaml
         public Dictionary<string, string> Param { get; set; }
         public List<string> IllegalList { get; set; }
 
+        /// <summary>
+        /// インスタンス作成用メソッド
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public static List<YamlOutput> Create(string content)
         {
             List<Dictionary<string, string>> paramsetList = new List<Dictionary<string, string>>();
@@ -73,6 +78,11 @@ namespace TestWinBMYaml
             }
 
             return list;
+        }
+
+        public string SearchIllegal()
+        {
+            return null;
         }
     }
 }

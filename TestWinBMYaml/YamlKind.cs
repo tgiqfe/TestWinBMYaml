@@ -10,6 +10,11 @@ namespace TestWinBMYaml
     {
         public string Kind { get; set; }
 
+        /// <summary>
+        /// インスタンス作成用メソッド
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public static YamlKind Create(string content)
         {
             var spec = new YamlKind();
@@ -30,5 +35,17 @@ namespace TestWinBMYaml
             return spec;
         }
 
+        public string SearchIllegal()
+        {
+            switch (this.Kind.ToLower())
+            {
+                case "config":
+                case "output":
+                case "job":
+                    return null;
+                default:
+                    return $"illegal \"{this.Kind}\"";
+            }
+        }
     }
 }

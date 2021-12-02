@@ -15,8 +15,11 @@ namespace TestWinBMYaml
         public int? Priority { get; set; }
         public List<string> IllegalList { get; set; }
 
-        public YamlMetadata() { }
-
+        /// <summary>
+        /// インスタンス作成用メソッド
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public static YamlMetadata Create(string content)
         {
             Dictionary<string, string> paramset = null;
@@ -35,6 +38,7 @@ namespace TestWinBMYaml
             }
 
             var spec = new YamlMetadata();
+            spec.IllegalList = new List<string>();
             foreach (KeyValuePair<string, string> pair in paramset)
             {
                 switch (pair.Key)
@@ -46,22 +50,57 @@ namespace TestWinBMYaml
                         spec.Description = pair.Value;
                         break;
                     case "skip":
-                        spec.Skip = bool.TryParse(pair.Value, out bool skip) ? skip : null;
+                        if (bool.TryParse(pair.Value, out bool skip))
+                        {
+                            spec.Skip = skip;
+                        }
+                        else
+                        {
+                            spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                        }
                         break;
                     case "step":
-                        spec.Step = bool.TryParse(pair.Value, out bool step) ? step : null;
+                        if (bool.TryParse(pair.Value, out bool step))
+                        {
+                            spec.Skip = step;
+                        }
+                        else
+                        {
+                            spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                        }
                         break;
                     case "priority":
-                        spec.Priority = int.TryParse(pair.Value, out int priority) ? priority : null;
+                        if (int.TryParse(pair.Value, out int priority))
+                        {
+                            spec.Priority = priority;
+                        }
+                        else
+                        {
+                            spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                        }
                         break;
                     default:
-                        spec.IllegalList ??= new List<string>();
                         spec.IllegalList.Add(pair.Key + ": " + pair.Value);
                         break;
                 }
             }
 
             return spec;
+        }
+
+        public string SearchIllegal()
+        {
+            if (IllegalList.Count > 0)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                foreach (var illegal in IllegalList)
+                {
+                    sb.AppendLine($"      {illegal}");
+                }
+                return sb.ToString();
+            }
+            return null;
         }
     }
 }
