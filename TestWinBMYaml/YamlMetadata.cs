@@ -31,7 +31,7 @@ namespace TestWinBMYaml
                 {
                     if (readLine == "metadata:")
                     {
-                        paramset = Functions.GetParameters(sr)[0];
+                        paramset = YamlFunctions.GetParameters(sr)[0];
                         break;
                     }
                 }

@@ -18,13 +18,8 @@ namespace TestWinBMYaml
         /// <returns></returns>
         public static int GetIndentDepth(string text)
         {
-            //Regex indent_space = new Regex(@"(?<=^\s+)[^\s].*");
             Match match = _indent_space.Match(text);
             return match.Value.Length;
-
-
-            //string spaces = _indent_space.Replace(text, "");
-            //return spaces.Length;
         }
 
         /// <summary>
