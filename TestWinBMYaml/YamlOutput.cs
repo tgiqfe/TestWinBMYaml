@@ -37,7 +37,7 @@ namespace TestWinBMYaml
                     }
                     if (inChild && readLine.Trim() == "spec:")
                     {
-                        paramsetList = Functions.GetParameters(sr);
+                        paramsetList = YamlFunctions.GetParameters(sr);
                         break;
                     }
                 }
@@ -67,7 +67,7 @@ namespace TestWinBMYaml
                         case "param":
                             using (var sr = new StringReader(pair.Value))
                             {
-                                spec.Param = Functions.GetParameters(sr)[0];
+                                spec.Param = YamlFunctions.GetParameters(sr)[0];
                             }
                             break;
                         default:

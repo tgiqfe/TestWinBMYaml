@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace TestWinBMYaml
 {
-    internal class Functions
+    internal class YamlFunctions
     {
         private static Regex _indent_space = new Regex(@"^\s*");
 
