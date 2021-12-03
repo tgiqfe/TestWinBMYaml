@@ -9,6 +9,8 @@ namespace TestWinBMYaml
 {
     internal class Functions
     {
+        private static Regex _indent_space = new Regex(@"^\s*");
+
         /// <summary>
         /// 行のインデントの深さを取得
         /// </summary>
@@ -16,10 +18,13 @@ namespace TestWinBMYaml
         /// <returns></returns>
         public static int GetIndentDepth(string text)
         {
-            Regex indent_space = new Regex(@"(?<=^\s+)[^\s].*");
+            //Regex indent_space = new Regex(@"(?<=^\s+)[^\s].*");
+            Match match = _indent_space.Match(text);
+            return match.Value.Length;
 
-            string spaces = indent_space.Replace(text, "");
-            return spaces.Length;
+
+            //string spaces = _indent_space.Replace(text, "");
+            //return spaces.Length;
         }
 
         /// <summary>

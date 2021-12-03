@@ -44,7 +44,7 @@ namespace TestWinBMYaml
                 case "job":
                     return null;
                 default:
-                    return $"illegal \"{this.Kind}\"";
+                    return $"[Illegal] {this.Kind}";
             }
         }
     }

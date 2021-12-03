@@ -49,6 +49,7 @@ namespace TestWinBMYaml
             foreach (Dictionary<string, string> paramset in paramsetList)
             {
                 var spec = new YamlWork();
+                spec.IllegalList = new List<string>();
                 foreach (KeyValuePair<string, string> pair in paramset)
                 {
                     switch (pair.Key)
@@ -77,9 +78,8 @@ namespace TestWinBMYaml
                         case "progress":
                             spec.Progress = bool.TryParse(pair.Value, out bool progress) ? progress : null;
                             break;
-                        default:
-                            spec.IllegalList ??= new List<string>();
-                            spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                        default: 
+                            spec.IllegalList.Add("[Illegal] " + pair.Key + ": " + pair.Value);
                             break;
                     }
                 }

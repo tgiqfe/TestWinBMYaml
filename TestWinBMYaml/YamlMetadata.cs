@@ -80,7 +80,7 @@ namespace TestWinBMYaml
                         }
                         break;
                     default:
-                        spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                        spec.IllegalList.Add("[Illegal] " + pair.Key + ": " + pair.Value);
                         break;
                 }
             }
