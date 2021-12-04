@@ -51,6 +51,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
             var sb = new StringBuilder();
             string ret = null;
 
+            /*
             if ((ret = Kind.SearchIllegal()) != null)
             {
                 sb.AppendLine($"    Kind: {ret}");
@@ -87,6 +88,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                     sb.AppendLine($"    Work: {ret}");
                 }
             }
+            */
 
             return sb.ToString();
         }

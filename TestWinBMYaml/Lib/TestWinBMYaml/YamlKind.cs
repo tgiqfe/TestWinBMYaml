@@ -7,46 +7,41 @@ using System.IO;
 
 namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
-    internal class YamlKind 
+    internal class YamlKind
     {
         public string Kind { get; set; }
 
-        /// <summary>
-        /// インスタンス作成用メソッド
-        /// </summary>
-        /// <param name="content"></param>
-        /// <returns></returns>
         public static YamlKind Create(string content)
         {
-            var spec = new YamlKind();
+            var result = new YamlKind();
 
+            YamlNodeCollection collection = null;
             using (var sr = new StringReader(content))
             {
                 string readLine = "";
+                int line = 0;
                 while ((readLine = sr.ReadLine()) != null)
                 {
+                    line++;
                     if (readLine.StartsWith("kind:"))
                     {
-                        spec.Kind = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                        collection.Add(
+                            line,
+                            LineType.Kind,
+                            "kind",
+                            readLine.Substring(readLine.IndexOf(":") + 1).Trim());
                         break;
                     }
                 }
-            }
 
-            return spec;
+                result.SetKind(collection.First());
+            }
+            return result;
         }
 
-        public string SearchIllegal()
+        public void SetKind(YamlNode node)
         {
-            switch (this.Kind.ToLower())
-            {
-                case "config":
-                case "output":
-                case "job":
-                    return null;
-                default:
-                    return $"[Illegal] {this.Kind}";
-            }
+            this.Kind = node.Value;
         }
     }
 }

@@ -5,6 +5,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
     {
         None,
         Comment,
+        Kind,
         Metadata,
         ConfigSpec,
         OutputSpec,
