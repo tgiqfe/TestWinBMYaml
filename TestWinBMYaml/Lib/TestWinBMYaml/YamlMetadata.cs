@@ -16,11 +16,13 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         public int? Priority { get; set; }
         public List<string> IllegalList { get; set; }
 
+        public IllegalParamCollection Illegals { get; set; }
+
         public static YamlMetadata Create2(string content)
         {
             var result = new YamlMetadata();
-            var list = new List<YamlLine>();
 
+            YamlNodeCollection collection = null;
             using (var sr = new StringReader(content))
             {
                 string readLine = "";
@@ -30,14 +32,37 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                     line++;
                     if (readLine == "metadata:")
                     {
-                        list = YamlFunctions.GetParameters(sr, line, LineType.Metadata);
+                        collection = YamlFunctions.GetParameters(sr, line, LineType.Metadata)[0];
                         break;
                     }
                 }
-
-
             }
 
+            var spec = new YamlMetadata();
+            foreach (YamlNode node in collection)
+            {
+                switch (node.Key)
+                {
+                    case "name":
+                        spec.SetName(node);
+                        break;
+                    case "description":
+                        spec.SetDescription(node);
+                        break;
+                    case "skip":
+                        spec.SetSkip(node);
+                        break;
+                    case "step":
+                        spec.SetStep(node);
+                        break;
+                    case "priority":
+                        spec.SetPriority(node);
+                        break;
+                    default:
+                        spec.Illegals.AddIllegalKey(node);
+                        break;
+                }
+            }
             return result;
         }
 
@@ -128,6 +153,55 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                 return sb.ToString();
             }
             return null;
+        }
+
+        public void SetName(YamlNode node)
+        {
+            this.Name = node.Value;
+        }
+
+        public void SetDescription(YamlNode node)
+        {
+            this.Description = node.Value;
+        }
+
+        public void SetSkip(YamlNode node)
+        {
+            if (bool.TryParse(node.Value, out bool skip))
+            {
+                this.Skip = skip;
+            }
+            else
+            {
+                this.Illegals ??= new IllegalParamCollection();
+                Illegals.AddIllegalValue(node);
+            }
+        }
+
+        public void SetStep(YamlNode node)
+        {
+            if (bool.TryParse(node.Value, out bool step))
+            {
+                this.Skip = step;
+            }
+            else
+            {
+                this.Illegals ??= new IllegalParamCollection();
+                Illegals.AddIllegalValue(node);
+            }
+        }
+
+        public void SetPriority(YamlNode node)
+        {
+            if (int.TryParse(node.Value, out int priority))
+            {
+                this.Priority = priority;
+            }
+            else
+            {
+                this.Illegals ??= new IllegalParamCollection();
+                Illegals.AddIllegalValue(node);
+            }
         }
     }
 }

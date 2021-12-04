@@ -77,15 +77,15 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
             return list;
         }
 
-        public static List<YamlLine> GetParameters(StringReader sr, int line, LineType type)
+        public static List<YamlNodeCollection> GetParameters(StringReader sr, int line, LineType type)
         {
-            var list = new List<YamlLine>();
+            var list = new List<YamlNodeCollection>();
 
             string key = "";
             string readLine = "";
             int? indent = null;
 
-            YamlLine yamlLine = null;
+            YamlNodeCollection collection = null;
 
             while ((readLine = sr.ReadLine()) != null)
             {
@@ -93,11 +93,11 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
 
                 if (readLine.Trim() == "") { continue; }
 
-                if (yamlLine == null || readLine.Trim().StartsWith("- "))
+                if (collection == null || readLine.Trim().StartsWith("- "))
                 {
                     readLine = _param_start.Replace(readLine, "  ");
-                    yamlLine = new YamlLine(line, type);
-                    list.Add(yamlLine);
+                    collection = new YamlNodeCollection();
+                    list.Add(collection);
                 }
 
                 indent ??= GetIndentDepth(readLine);
@@ -110,17 +110,20 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                 {
                     if (readLine.Contains(":"))
                     {
-                        yamlLine.Key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
-                        yamlLine.Value = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                        collection.Add(
+                            line,
+                            type,
+                            readLine.Substring(0, readLine.IndexOf(":")).Trim(),
+                            readLine.Substring(readLine.IndexOf(":") + 1).Trim());
                     }
                     else
                     {
-                        yamlLine.Value += ("\\n" + readLine.Trim());
+                        collection.AppendValue(Environment.NewLine + readLine.Trim());
                     }
                 }
                 else if (nowIndent > indent)
                 {
-                    yamlLine.Value += ("\\n" + readLine.Trim());
+                    collection.AppendValue(Environment.NewLine + readLine.Trim());
                 }
             }
 
