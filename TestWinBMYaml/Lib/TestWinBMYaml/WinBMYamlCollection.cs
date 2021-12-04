@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.IO;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
     internal class WinBMYamlCollection : List<WinBMYaml>
     {

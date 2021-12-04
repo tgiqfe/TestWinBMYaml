@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Text.RegularExpressions;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
-    internal class YamlRequire 
+    internal class YamlWork
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -17,13 +19,16 @@ namespace TestWinBMYaml
         public bool? Progress { get; set; }
         public List<string> IllegalList { get; set; }
 
+        public List<IllegalParam> Illegals { get; set; }
+
         /// <summary>
         /// インスタンス作成用メソッド
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        public static List<YamlRequire> Create(string content)
+        public static List<YamlWork> Create(string content)
         {
+            Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
             List<Dictionary<string, string>> paramsetList = new List<Dictionary<string, string>>();
 
             using (var sr = new StringReader(content))
@@ -37,19 +42,22 @@ namespace TestWinBMYaml
                         inChild = true;
                         continue;
                     }
-                    if (inChild && readLine.Trim() == "require:")
+                    if (inChild && readLine.Trim() == "work:")
                     {
                         paramsetList = YamlFunctions.GetParameters(sr);
                         break;
                     }
                 }
             }
-
-            List<YamlRequire> list = new List<YamlRequire>();
+            
+            List<YamlWork> list = new List<YamlWork>();
             foreach (Dictionary<string, string> paramset in paramsetList)
             {
-                var spec = new YamlRequire();
+                var spec = new YamlWork();
                 spec.IllegalList = new List<string>();
+
+                spec.Illegals = new List<IllegalParam>();
+
                 foreach (KeyValuePair<string, string> pair in paramset)
                 {
                     switch (pair.Key)
@@ -61,7 +69,15 @@ namespace TestWinBMYaml
                             spec.Description = pair.Value;
                             break;
                         case "skip":
-                            spec.Skip = bool.TryParse(pair.Value, out bool skip) ? skip : null;
+                            if (bool.TryParse(pair.Value, out bool skip))
+                            {
+                                spec.Skip = skip;
+                            }
+                            else
+                            {
+                                spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                                
+                            }
                             break;
                         case "task":
                             spec.Task = pair.Value;
@@ -83,6 +99,7 @@ namespace TestWinBMYaml
                             break;
                     }
                 }
+                list.Add(spec);
             }
 
             return list;
@@ -90,6 +107,16 @@ namespace TestWinBMYaml
 
         public string SearchIllegal()
         {
+            if (IllegalList.Count > 0)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                foreach (var illegal in IllegalList)
+                {
+                    sb.AppendLine($"      {illegal}");
+                }
+                return sb.ToString();
+            }
             return null;
         }
     }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
-    internal class YamlKind
+    internal class YamlKind 
     {
         public string Kind { get; set; }
 

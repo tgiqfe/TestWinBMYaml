@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using WinBM.Recipe;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
     internal class WinBMYaml
     {
@@ -34,7 +34,7 @@ namespace TestWinBMYaml
         {
             try
             {
-                using(var sr = new StringReader(this.Content))
+                using (var sr = new StringReader(this.Content))
                 {
                     _ = WinBM.Recipe.Page.Deserialize(sr);
                 }
@@ -95,6 +95,7 @@ namespace TestWinBMYaml
         {
             if (Content.Trim() != "")
             {
+                /*
                 Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
                 var sb = new StringBuilder();
                 using (var sr = new StringReader(Content))
@@ -114,6 +115,8 @@ namespace TestWinBMYaml
                     }
                 }
                 string content = sb.ToString();
+                */
+                string content = Content;
 
                 this.Kind = YamlKind.Create(content);
                 this.Metadata = YamlMetadata.Create(content);
@@ -121,6 +124,23 @@ namespace TestWinBMYaml
                 this.Output = YamlOutput.Create(content);
                 this.Require = YamlRequire.Create(content);
                 this.Work = YamlWork.Create(content);
+            }
+        }
+
+        private void LoadToYamlLine()
+        {
+            using (var sr = new StringReader(this.Content))
+            {
+                Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
+
+                string readLine = "";
+                int line = 0;
+                while ((readLine = sr.ReadLine()) != null)
+                {
+                    line++;
+
+                }
+
             }
         }
     }

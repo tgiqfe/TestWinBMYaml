@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
-    internal class YamlConfig
+    internal class YamlConfig 
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -56,7 +57,14 @@ namespace TestWinBMYaml
                             spec.Description = pair.Value;
                             break;
                         case "skip":
-                            spec.Skip = bool.TryParse(pair.Value, out bool skip) ? skip : null;
+                            if (bool.TryParse(pair.Value, out bool skip))
+                            {
+                                spec.Skip = skip;
+                            }
+                            else
+                            {
+                                spec.IllegalList.Add(pair.Key + ": " + pair.Value);
+                            }
                             break;
                         case "task":
                             spec.Task = pair.Value;
@@ -72,6 +80,7 @@ namespace TestWinBMYaml
                             break;
                     }
                 }
+                list.Add(spec);
             }
 
             return list;
@@ -79,6 +88,16 @@ namespace TestWinBMYaml
 
         public string SearchIllegal()
         {
+            if (IllegalList.Count > 0)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                foreach (var illegal in IllegalList)
+                {
+                    sb.AppendLine($"      {illegal}");
+                }
+                return sb.ToString();
+            }
             return null;
         }
     }

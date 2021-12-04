@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.IO;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
     internal class YamlFunctions
     {
-        private static Regex _indent_space = new Regex(@"^\s*");
+        private readonly static Regex _indent_space = new Regex(@"^\s*");
+        private readonly static Regex _param_start = new Regex(@"(?<=\s*)- ");
 
         /// <summary>
         /// 行のインデントの深さを取得
@@ -39,14 +41,11 @@ namespace TestWinBMYaml
 
             while ((readLine = sr.ReadLine()) != null)
             {
-                if (readLine.Trim() == "")
-                {
-                    continue;
-                }
+                if (readLine.Trim() == "") { continue; }
 
                 if (parameter == null || readLine.StartsWith("- "))
                 {
-                    readLine = Regex.Replace(readLine, @"(?<=\s*)- ", "  ");
+                    readLine = _param_start.Replace(readLine, "  ");
                     parameter = new Dictionary<string, string>();
                     list.Add(parameter);
                 }
@@ -78,6 +77,55 @@ namespace TestWinBMYaml
             return list;
         }
 
+        public static List<YamlLine> GetParameters(StringReader sr, int line, LineType type)
+        {
+            var list = new List<YamlLine>();
+
+            string key = "";
+            string readLine = "";
+            int? indent = null;
+
+            YamlLine yamlLine = null;
+
+            while ((readLine = sr.ReadLine()) != null)
+            {
+                line++;
+
+                if (readLine.Trim() == "") { continue; }
+
+                if (yamlLine == null || readLine.Trim().StartsWith("- "))
+                {
+                    readLine = _param_start.Replace(readLine, "  ");
+                    yamlLine = new YamlLine(line, type);
+                    list.Add(yamlLine);
+                }
+
+                indent ??= GetIndentDepth(readLine);
+                int nowIndent = GetIndentDepth(readLine);
+                if (nowIndent < indent)
+                {
+                    break;
+                }
+                else if (nowIndent == indent)
+                {
+                    if (readLine.Contains(":"))
+                    {
+                        yamlLine.Key = readLine.Substring(0, readLine.IndexOf(":")).Trim();
+                        yamlLine.Value = readLine.Substring(readLine.IndexOf(":") + 1).Trim();
+                    }
+                    else
+                    {
+                        yamlLine.Value += ("\\n" + readLine.Trim());
+                    }
+                }
+                else if (nowIndent > indent)
+                {
+                    yamlLine.Value += ("\\n" + readLine.Trim());
+                }
+            }
+
+            return list;
+        }
 
     }
 }

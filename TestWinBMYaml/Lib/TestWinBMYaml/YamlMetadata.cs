@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
     internal class YamlMetadata
     {
@@ -14,6 +15,32 @@ namespace TestWinBMYaml
         public bool? Step { get; set; }
         public int? Priority { get; set; }
         public List<string> IllegalList { get; set; }
+
+        public static YamlMetadata Create2(string content)
+        {
+            var result = new YamlMetadata();
+            var list = new List<YamlLine>();
+
+            using (var sr = new StringReader(content))
+            {
+                string readLine = "";
+                int line = 0;
+                while ((readLine = sr.ReadLine()) != null)
+                {
+                    line++;
+                    if (readLine == "metadata:")
+                    {
+                        list = YamlFunctions.GetParameters(sr, line, LineType.Metadata);
+                        break;
+                    }
+                }
+
+
+            }
+
+            return result;
+        }
+
 
         /// <summary>
         /// インスタンス作成用メソッド

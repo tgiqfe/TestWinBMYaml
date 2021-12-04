@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using WinBM.Recipe;
 using System.Text.RegularExpressions;
 
-namespace TestWinBMYaml
+namespace WinBM.PowerShell.Lib.TestWinBMYaml
 {
     internal class TestYaml
     {

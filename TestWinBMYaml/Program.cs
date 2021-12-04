@@ -1,5 +1,5 @@
 ﻿using WinBM.Recipe;
-using TestWinBMYaml;
+using WinBM.PowerShell.Lib.TestWinBMYaml;
 
 
 string targetPath = "Test.yml";
