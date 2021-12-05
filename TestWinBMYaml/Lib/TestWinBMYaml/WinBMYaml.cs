@@ -44,65 +44,33 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
             return false;
         }
 
-        public string TestParameter()
+        public void TestParameter()
         {
             LoadFromContent();
-
-
-            return "";
+            ViewIllegals();
         }
 
         private void LoadFromContent()
         {
             if (Content.Trim() != "")
             {
-                /*
-                Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
-                var sb = new StringBuilder();
-                using (var sr = new StringReader(Content))
-                {
-                    string readLine = "";
-                    while ((readLine = sr.ReadLine()) != null)
-                    {
-                        if (readLine.Contains("#"))
-                        {
-                            readLine = comment_hash.Replace(readLine, "");
-                        }
-                        if (readLine.Trim() == "")
-                        {
-                            continue;
-                        }
-                        sb.AppendLine(readLine);
-                    }
-                }
-                string content = sb.ToString();
-                */
-                string content = Content;
-
-                this.Kind = YamlKind.Create(content);
-                this.Metadata = YamlMetadata.Create(content);
-                this.Config = YamlConfig.Create(content);
-                this.Output = YamlOutput.Create(content);
-                this.Require = YamlRequire.Create(content);
-                this.Work = YamlWork.Create(content);
+                this.Kind = YamlKind.Create(Content);
+                this.Metadata = YamlMetadata.Create(Content);
+                this.Config = YamlConfig.Create(Content);
+                this.Output = YamlOutput.Create(Content);
+                this.Require = YamlRequire.Create(Content);
+                this.Work = YamlWork.Create(Content);
             }
         }
 
-        private void LoadToYamlLine()
+        private void ViewIllegals()
         {
-            using (var sr = new StringReader(this.Content))
-            {
-                Regex comment_hash = new Regex(@"(?<=(('[^']*){2})*)\s*#.*$");
-
-                string readLine = "";
-                int line = 0;
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    line++;
-
-                }
-
-            }
+            Kind.Illegals?.ForEach(y => y.View());
+            Metadata.Illegals?.ForEach(y => y.View());
+            Config.ForEach(x => x.Illegals?.ForEach(y => y.View()));
+            Output.ForEach(x => x.Illegals?.ForEach(y => y.View()));
+            Require.ForEach(x => x.Illegals?.ForEach(y => y.View()));
+            Work.ForEach(x => x.Illegals?.ForEach(y => y.View()));
         }
     }
 }

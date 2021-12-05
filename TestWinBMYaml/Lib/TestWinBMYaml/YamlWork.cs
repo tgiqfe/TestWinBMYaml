@@ -40,7 +40,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                         {
                             if (string.IsNullOrEmpty(spec))
                             {
-                                return YamlFunctions.GetParameters(asr, type);
+                                return YamlFunctions.GetNodeCollections(asr, type);
                             }
                             else
                             {
@@ -50,11 +50,11 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                         }
                         if (inChild && readLine.Trim() == spec)
                         {
-                            return YamlFunctions.GetParameters(asr, type);
+                            return YamlFunctions.GetNodeCollections(asr, type);
                         }
                     }
                 }
-                return null;
+                return new List<YamlNodeCollection>();
             };
 
             foreach (var collection in searchContent("job:", "work:", LineType.JobWork))
@@ -128,13 +128,21 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         {
             using (var asr = new AdvancedStringReader(node.Value))
             {
-                this.Param = YamlFunctions.GetParameters(asr, LineType.JobWorkParam)[0].ToDictionary();
+                this.Param = YamlFunctions.GetNodeCollections(asr, LineType.JobWorkParam)[0].ToDictionary();
             }
         }
 
         public void SetFailed(YamlNode node)
         {
-            this.Failed = node.Value;
+            if (Enum.TryParse(node.Value, out WinBM.Recipe.SpecJob.FailedAction failed))
+            {
+                this.Failed = failed.ToString();
+            }
+            else
+            {
+                this.Illegals ??= new IllegalParamCollection();
+                Illegals.AddIllegalValue(node);
+            }
         }
 
         public void SetProgress(YamlNode node)

@@ -37,7 +37,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                         {
                             if (string.IsNullOrEmpty(spec))
                             {
-                                return YamlFunctions.GetParameters(asr, type);
+                                return YamlFunctions.GetNodeCollections(asr, type);
                             }
                             else
                             {
@@ -47,11 +47,11 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                         }
                         if (inChild && readLine.Trim() == spec)
                         {
-                            return YamlFunctions.GetParameters(asr, type);
+                            return YamlFunctions.GetNodeCollections(asr, type);
                         }
                     }
                 }
-                return null;
+                return new List<YamlNodeCollection>();
             };
 
             foreach (var collection in searchContent("config:", "spec:", LineType.ConfigSpec))
@@ -119,7 +119,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         {
             using (var asr = new AdvancedStringReader(node.Value))
             {
-                this.Param = YamlFunctions.GetParameters(asr, LineType.ConfigSpecParam)[0].ToDictionary();
+                this.Param = YamlFunctions.GetNodeCollections(asr, LineType.ConfigSpecParam)[0].ToDictionary();
             }
         }
     }

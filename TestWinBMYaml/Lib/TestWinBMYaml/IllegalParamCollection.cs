@@ -30,7 +30,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
 
         public void AddNothingDll(YamlNode node)
         {
-
+            //  未実装
         }
     }
 }

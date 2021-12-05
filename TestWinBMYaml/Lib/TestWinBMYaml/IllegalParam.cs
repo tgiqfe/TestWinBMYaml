@@ -20,7 +20,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         ///       [Value] line:50 aaaaaaaaaaaaaaaaaaaaaaa...
         /// </summary>
         /// <returns></returns>
-        public string GetText()
+        private string GetText()
         {
             string text = _newline_char.IsMatch(Message) ?
                 _newline_char.Replace(Message, "\\n") :
@@ -31,6 +31,31 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                 text = text.Substring(0, Console.WindowWidth - 4) + "...";
             }
             return text;
+        }
+
+        public void View()
+        {
+            Console.Write("      [");
+            switch (IllegalType)
+            {
+                case IllegalType.Key:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write(IllegalType.Key);
+                    break;
+                case IllegalType.Value:
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.Write(IllegalType.Value);
+                    break;
+                case IllegalType.Dll:
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    Console.Write(IllegalType.Dll);
+                    break;
+                default:
+                    Console.Write(IllegalType.None);
+                    break;
+            }
+            Console.ResetColor();
+            Console.WriteLine("] line:{0} {1}", this.Line, GetText());
         }
     }
 }

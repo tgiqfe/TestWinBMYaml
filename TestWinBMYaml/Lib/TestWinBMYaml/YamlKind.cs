@@ -17,18 +17,16 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         {
             var result = new YamlKind();
 
-            YamlNodeCollection collection = null;
-            using (var sr = new StringReader(content))
+            YamlNodeCollection collection = new YamlNodeCollection();
+            using (var asr = new AdvancedStringReader(content))
             {
                 string readLine = "";
-                int line = 0;
-                while ((readLine = sr.ReadLine()) != null)
+                while ((readLine = asr.ReadLine()) != null)
                 {
-                    line++;
                     if (readLine.StartsWith("kind:"))
                     {
                         collection.Add(
-                            line,
+                            asr.Line,
                             LineType.Kind,
                             "kind",
                             readLine.Substring(readLine.IndexOf(":") + 1).Trim());
@@ -43,7 +41,15 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
 
         public void SetKind(YamlNode node)
         {
-            this.Kind = node.Value;
+            if (Enum.TryParse(node.Value, out WinBM.Recipe.Page.EnumKind kind))
+            {
+                this.Kind = kind.ToString();
+            }
+            else
+            {
+                this.Illegals ??= new IllegalParamCollection();
+                Illegals.AddIllegalValue(node);
+            }
         }
     }
 }

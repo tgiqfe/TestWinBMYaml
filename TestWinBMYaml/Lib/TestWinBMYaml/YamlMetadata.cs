@@ -21,23 +21,40 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         {
             var result = new YamlMetadata();
 
-            YamlNodeCollection collection = null;
-            using (var sr = new StringReader(content))
+            Func<string, string, LineType, List<YamlNodeCollection>> searchContent = (category, spec, type) =>
             {
-                string readLine = "";
-                int line = 0;
-                while ((readLine = sr.ReadLine()) != null)
+                using (var asr = new AdvancedStringReader(content))
                 {
-                    line++;
-                    if (readLine == "metadata:")
+                    string readLine = "";
+                    bool inChild = false;
+                    while ((readLine = asr.ReadLine()) != null)
                     {
-                        collection = YamlFunctions.GetParameters(sr, line, LineType.Metadata)[0];
-                        break;
+                        if (readLine.Contains("#"))
+                        {
+                            readLine = YamlFunctions.RemoveComment(readLine);
+                        }
+                        if (readLine == category)
+                        {
+                            if (string.IsNullOrEmpty(spec))
+                            {
+                                return YamlFunctions.GetNodeCollections(asr, type);
+                            }
+                            else
+                            {
+                                inChild = true;
+                                continue;
+                            }
+                        }
+                        if (inChild && readLine.Trim() == spec)
+                        {
+                            return YamlFunctions.GetNodeCollections(asr, type);
+                        }
                     }
                 }
-            }
+                return new List<YamlNodeCollection>();
+            };
 
-            foreach (YamlNode node in collection)
+            foreach (YamlNode node in searchContent("metadata:", null, LineType.Metadata)[0])
             {
                 switch (node.Key)
                 {
@@ -57,7 +74,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                         result.SetPriority(node);
                         break;
                     default:
-                        spec.Illegals ??= new IllegalParamCollection();
+                        result.Illegals ??= new IllegalParamCollection();
                         result.Illegals.AddIllegalKey(node);
                         break;
                 }

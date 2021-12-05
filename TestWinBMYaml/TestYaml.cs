@@ -72,8 +72,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                     Console.ResetColor();
                     Console.WriteLine("]");
 
-                    string result = winBMYaml.TestParameter();
-                    Console.Write(result);
+                    winBMYaml.TestParameter();
                 }
             }
         }
