@@ -8,8 +8,12 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         Kind,
         Metadata,
         ConfigSpec,
+        ConfigSpecParam,
         OutputSpec,
+        OutputSpecParam,
         JobRequire,
+        JobrequireParam,
         JobWork,
+        JobWorkParam,
     }
 }

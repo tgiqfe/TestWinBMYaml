@@ -11,6 +11,8 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
     {
         public string Kind { get; set; }
 
+        public IllegalParamCollection Illegals { get; set; }
+
         public static YamlKind Create(string content)
         {
             var result = new YamlKind();

@@ -48,49 +48,8 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         {
             LoadFromContent();
 
-            var sb = new StringBuilder();
-            string ret = null;
 
-            /*
-            if ((ret = Kind.SearchIllegal()) != null)
-            {
-                sb.AppendLine($"    Kind: {ret}");
-            }
-            if ((ret = Metadata.SearchIllegal()) != null)
-            {
-                sb.AppendLine($"    Metadata: {ret}");
-            }
-            foreach (var config in Config)
-            {
-                if ((ret = config.SearchIllegal()) != null)
-                {
-                    sb.AppendLine($"    Config: {ret}");
-                }
-            }
-            foreach (var output in Output)
-            {
-                if ((ret = output.SearchIllegal()) != null)
-                {
-                    sb.AppendLine($"    Output: {ret}");
-                }
-            }
-            foreach (var require in Require)
-            {
-                if ((ret = require.SearchIllegal()) != null)
-                {
-                    sb.AppendLine($"    Require: {ret}");
-                }
-            }
-            foreach (var work in Work)
-            {
-                if ((ret = work.SearchIllegal()) != null)
-                {
-                    sb.AppendLine($"    Work: {ret}");
-                }
-            }
-            */
-
-            return sb.ToString();
+            return "";
         }
 
         private void LoadFromContent()

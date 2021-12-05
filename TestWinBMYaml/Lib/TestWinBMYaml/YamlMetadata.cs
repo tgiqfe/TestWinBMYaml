@@ -14,7 +14,6 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         public bool? Skip { get; set; }
         public bool? Step { get; set; }
         public int? Priority { get; set; }
-        public List<string> IllegalList { get; set; }
 
         public IllegalParamCollection Illegals { get; set; }
 
@@ -58,6 +57,7 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
                         result.SetPriority(node);
                         break;
                     default:
+                        spec.Illegals ??= new IllegalParamCollection();
                         result.Illegals.AddIllegalKey(node);
                         break;
                 }

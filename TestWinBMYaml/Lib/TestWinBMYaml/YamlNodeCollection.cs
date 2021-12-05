@@ -21,5 +21,12 @@ namespace WinBM.PowerShell.Lib.TestWinBMYaml
         {
             this.Last().Value += val;
         }
+
+        public Dictionary<string, string> ToDictionary()
+        {
+            var dictionary = new Dictionary<string, string>();
+            this.ForEach(x => dictionary[x.Key] = x.Value);
+            return dictionary;
+        }
     }
 }
